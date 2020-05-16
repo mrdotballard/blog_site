@@ -1,90 +1,93 @@
-var bodyParser = require('body-parser'),
+const bodyParser = require('body-parser'),
   methodOverride = require('method-override'),
   expressSanitizer = require('express-sanitizer'),
+  bcrypt = require('bcryptjs'),
   mysql = require('mysql'),
   express = require('express'),
-  app = express();
-
-// APP CONFIG
-app.set("view engine", "ejs");
-app.use(express.static("public"));
-app.use(expressSanitizer());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
+  morgan = require('morgan'),
+  session = require('express-session'),
+  flash = require('connect-flash'),
+  MySQLStore = require('express-mysql-session')(session),
+  authMiddleware = require('./middleware/auth'),
+  passport = require('passport'),
+  LocalStrategy = require('passport-local').Strategy;
 
 // MYSQL/DATABASE CONFIG
-var connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'matthew',
-  password: 'triune3*UP',
-  database: 'myblog'
-});
+require('dotenv').config();
+const { database } = require('./keys');
+const pool = require('./database'); // use pool to get connection
+
+//  APP INITIALISE
+const app = express();
+// const passportConfig = require('./passport');
+
+// APP CONFIG
+app.set('port', process.env.PORT);
+// app.set('views', path.join(__dirname, 'views'));
+app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
+
+// MIDDLEWARES
+app.use(session({
+  secret: 'mysessionsecretabc123',
+  resave: false,
+  saveUninitialized: false,
+  store: new MySQLStore(database)
+}));
+app.use(flash());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(methodOverride("_method"));
+app.use(expressSanitizer()); //html sanitizer
 
 
+// require('./passport')(passport);
 
+app.use(passport.initialize());
+app.use(passport.session());
 
-connection.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected to database!");
+passport.use(new LocalStrategy((username, password, done) => {
+  pool.query("SELECT * FROM user WHERE username = ?", [username], (err, results, fields) => {
+    if(err) return done(err);
+  
+    if(results.length < 1) return done(null, false, { message: 'No such user' });
 
-  //*** CREATE DATABASE ***
-  connection.query("CREATE DATABASE IF NOT EXISTS myblog", function (err, result) {
-    if (err) {
-      console.log("Database 'myblog' aleady exists");
-      throw err;
-    }
-    else {
-      console.log("Database 'myblog' created");      
-    }
+    user = results[0];
+
+    bcrypt.compare(password, user.password, (err, isValid) => {
+      if(err) return done(err);
+
+      if(!isValid)
+        return done(null, false, { message: 'Incorrect password' });
+
+      return done(null, user, { message: 'Logged in successfully' });
+    });
   });
 
-    //*** CREATE TABLES***
-    // - USER
-  var sql_user = "CREATE TABLE IF NOT EXISTS user(" +
-    "user_id INT PRIMARY KEY AUTO_INCREMENT," +
-    "user_name VARCHAR(100)," +
-    "password VARCHAR(250)," +
-    
-    // - BLOG
-  var sql_blog = "CREATE TABLE IF NOT EXISTS blog(" +
-    "blog_id INT PRIMARY KEY AUTO_INCREMENT, " +
-    "user_id INT," +
-    "title VARCHAR(100)," +
-    "intro TEXT," +
-    "content TEXT," +
-    "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)," +
-    "FOREIGN KEY (user_id) REFERENCES user (user_id)";
-  connection.query(sql, function (err, result) {
-  if (err) throw err;
-  console.log("Table blog created");
-  });
+}));
+passport.serializeUser((user, done) => {
+  console.log('here');
+  done(null, user.user_id);
 });
 
-
-/**
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
-  var sql = "ALTER TABLE customers ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY";
-  con.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Table altered");
+passport.deserializeUser((id, done) => {
+  pool.query("SELECT * FROM user WHERE user_id = ? ", [id], (err, result) => {
+    if (err) return done(err); // err from mysql
+    if (result.length < 1) done(null, false); // user_id not found in user table
+    done(null, result[0]); // user returned for deserializing
   });
 });
-**/
-
-/*** INSERTING RECORD
-connection.connect(function(err) {
-  if(err) throw err;
-  console.log("connected to insert into table");
-   
-  var sql = "INSERT INTO blog (name, image, body) VALUES ('Test Blog', 'https://source.unsplash.com/random/400x300', 'Here in lies the body of the blog. Bloggidy bloggedie blog.')";
-  connection.query(sql, function(err, result) {
-    if (err) throw err;
-    console.log(result);
-  });
+// GLOBAL
+app.use((req, res, next) => {
+  res.locals.message = req.flash('error');
+  res.locals.success = req.flash('success');
+  app.locals.user = req.user; 
+  next();
 });
-*/
+
 
 
 // RESTFUL ROUTES CONFIG
@@ -92,93 +95,178 @@ app.get("/", function(req, res) {
   res.redirect("/blogs");
 });
 
-// INDEX ROUTE
-app.get("/blogs", function(req, res) {
-  // connection.connect(function(err) {
-    // if (err) throw err;
-    connection.query("SELECT * FROM blog", function (err, result) {
-      if (err) throw err;
+// AUTH ROUTE
+app.get('/login', (req, res) => {
+  console.log(req.flash());
+  res.render("login");
+});
 
-      res.render("index", {blogs: result});
-  // connection.end();
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/blogs',
+  failureRedirect: '/login',
+  failureFlash: true,
+  successFlash: true
+})
+);
+
+app.get('/logout', function(req, res) {
+  req.logout();
+  req.flash("success", "You're logged out");
+  res.redirect('/blogs');
+});
+
+app.get('/blogs/bjr', isLoggedIn, (req, res) => {
+  res.render('./blogs/bjr');
+});
+
+function isLoggedIn(req, res, next){
+  if(req.isAuthenticated()){
+    next();
+  } else{
+    req.flash('message', 'You must be logged in to view this page');
+    res.redirect('/login');
+  }
+}
+
+// REGISTER ROUTE
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+app.post('/register', (req, res) => {
+  newUser = req.body.user;
+  
+  if(!newUser.username || newUser.username.trim() === '') 
+    return res.render('register', { message: "Username cannot be blank" });
+  if(!newUser.password || newUser.password.trim() === '')
+    return res.render('register', { message: "Password cannot be blank" });
+
+  pool.query('SELECT * FROM user WHERE username = ? OR email = ?', [newUser.username, newUser.email], (err, result, fields) => {
+    if(err) {
+      console.log("sql error " + err);
+      throw err;
+    }
+    if(result.length > 0) {
+      console.log('username or email already in DB');
+      return res.render('register');
+    }
+  });
+
+  newUser.password =  bcrypt.hashSync(newUser.password, 10);
+
+  pool.query('INSERT INTO user SET ?', newUser, (err, result, fields) => {
+    if(err) {
+      console.log(err);
+      throw err;
+    
+    }
+    newUser.id = result.insertId;
+    console.log("User added to DB");
+    console.log(newUser);
+
+    // once user succesfully added to DB, sign them in
+    req.login(newUser, (err) => {
+      if(err) {
+        console.log(err);
+        return res.render('./views/register');
+      }
+      req.flash('message', 'you are logged in');
+      return res.redirect('/blogs/bjr');
     });
-  // });
+
+    // req.flash('success', 'registered sucessfully- welcome');
+     
+  });
+});
+
+// INDEX ROUTE
+app.get("/blogs", (req, res) => {
+    pool.query("SELECT * FROM blog", (err, result) => {
+      if (err) {
+        console.log("DB error here");
+        throw err;
+      }
+      if(result.length > 0) res.render("./blogs/index", {blogs: result});
+      else res.send("sorry no blogs");
+    });
 });
 
 
 // NEW/CREATE ROUTE
 app.get("/blogs/new", function(req, res){
-  res.render("new");
+  res.render("./blogs/new");
 });
 
-app.post("/blogs", function(req, res) {
+app.post("/blogs", async (req, res, done) => {
     // 1) Create bog
   // req.body.blog.body = req.sanitize(req.body.blog.body);
   
   var post = req.body.blog;
+  console.log("req.body.blog: " + typeof(post));
     // var sql = "INSERT INTO blog (name, image, body) VALUES ('Test Blog', 'https://source.unsplash.com/random/400x300', 'Here in lies the body of the blog. Bloggidy bloggedie blog.')";
-  connection.query('INSERT INTO blog SET ?', post, function(err, result) {
+ await pool.query('INSERT INTO blog SET ?', post, function(err, result) {
     if (err) throw err;
+    if(result.length > 0) console.log("Blow written to DB");
     // 2) redirect
-    res.redirect("/blogs");
+    // console.log(result);
+    return done(null, result, res.redirect("/blogs"));
   });
 });
 
- 
+
 // SHOW ROUTE
-app.get("/blogs/:id", function(req, res){
+app.get("/blogs/:blog_id", function(req, res){
   
   // find sql entry in db
-    connection.query('SELECT * FROM blog WHERE id=?', [req.params.id], function(err, result){
+    pool.query('SELECT * FROM blog WHERE blog_id=?', [req.params.blog_id], function(err, result){
       if(err){
         console.log("error thrown: " + err);
         res.redirect("/blogs");
       } else{
-
-        res.render("show", {blog: result[0]}); 
+        res.render("./blogs/show", {blog: result[0]}); 
       }
     });
 
   // else redirect to index (/blogs)
 });
-
-
+ 
+ 
 // EDIT ROUTE
-app.get("/blogs/:id/edit", function(req, res) {
-  connection.query('SELECT * FROM blog WHERE id=?', [req.params.id], function(err, result){
+app.get("/blogs/:blog_id/edit", function(req, res) {
+  pool.query('SELECT * FROM blog WHERE blog_id=?', [req.params.blog_id], function(err, result){
     if(err){
       console.log("error thrown: " + err);
-      res.redirect("/blogs");
+      res.redirect("/blogs"); 
     } else{
       
-    res.render("edit", {blog: result[0]}); 
+    res.render("./blogs/edit", {blog: result[0]}); 
     }
   }); 
 });
 
 
 // UPDATE ROUTE
-app.put("/blogs/:id", function(req, res) {
-  req.body.blog.body = req.sanitize(req.body.blog.body);
+app.put("/blogs/:blog_id", function(req, res) {
+  req.body.blog.content = req.sanitize(req.body.blog.content);
   var blog = req.body.blog;
-  var sql = "UPDATE blog SET ? WHERE id = ?";
+  var sql = "UPDATE blog SET ? WHERE blog_id = ?";
   
-  connection.query(sql, [blog, req.params.id], function(err, updatedBlog){
-    // connection.query("UPDATE blog SET body = 'UPDATE' WHERE id=5", function(err, result){
+  pool.query(sql, [blog, req.params.blog_id], function(err, updatedBlog){
+    // pool.query("UPDATE blog SET content = 'UPDATE' WHERE blog_id=5", function(err, result){
     if(err){
       console.log(err);
     } else {
-      res.redirect("/blogs/" + req.params.id);
+      res.redirect("/blogs/" + req.params.blog_id);
     }
   });
 }); 
 
 // DELETE ROUTE 
-app.delete("/blogs/:id", function(req, res) {
+app.delete("/blogs/:blog_id", function(req, res) {
   
-  connection.query("DELETE FROM blog WHERE id=?", [req.params.id], function(err, result){
+  pool.query("DELETE FROM blog WHERE blog_id=?", [req.params.blog_id], function(err, result){
     if(err) {
-      res.redirect("/blogs");
+      res.redirect("/blogs/bjr");
     } else {
       res.redirect("/blogs");
     }

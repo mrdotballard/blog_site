@@ -1,0 +1,35 @@
+<% include partials/header %>
+
+<div class="ui main text container">
+  <div class="ui huge header">REGISTER</div>
+  
+  <form class="ui form" action="/register" method="POST">
+    <div class="field">
+      <label>First Name</label>
+      <input type="text" name="user[first_name]">
+    </div>
+    
+    <div class="field">
+      <label>Last Name</label>
+      <input type="text" name="user[last_name]">
+    </div>
+    
+    <div class="field">
+        <label>Username</label>
+        <input type="text" name="user[username]">
+    </div>
+
+    <div class="field">
+        <label>Email</label>
+        <input type="email" name="user[email]">
+    </div>
+    <div class="field">
+        <label>Password</label>
+        <input type="password" name="user[password]">
+    </div>
+
+    <button class="ui big inverted teal button">Register!</button>
+
+  </form>
+</div>
+<% include partials/footer %>

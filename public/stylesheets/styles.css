@@ -3,9 +3,11 @@ i.icon {
 }
 
 .container.main {
-  margin-top: 7.0em;
+  margin-top: 100px;
 }
-
+.flash{
+  margin-bottom: 50px;
+}
 #delete {
   display: inline;
 }

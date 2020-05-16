@@ -1,4 +1,4 @@
-<% include partials/header %>
+<% include ../partials/header %>
 <div class="ui main text container segment">
   <div class="ui huge header">New Blog</div>
   
@@ -14,12 +14,17 @@
     </div>
     
     <div class="field">
+      <label>Blog Into</label>
+      <textarea name="blog[intro]" cols="30" rows="5" placeholder="intro"></textarea>
+    </div>
+
+    <div class="field">
       <label>Blog Post</label>
-      <textarea name="blog[body]" cols="30" rows="10" placeholder="blog here" required></textarea>
+      <textarea name="blog[content]" cols="30" rows="10" placeholder="blog here" required></textarea>
     </div>
     
     <button class="ui big inverted teal button">Submit!</button>
 
   </form>
 </div>
-<% include partials/footer %>
+<% include ../partials/footer %>

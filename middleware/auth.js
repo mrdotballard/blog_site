@@ -20,7 +20,7 @@ authMiddleware.isLoggedIn = (req, res, next) => {
     }
 module.exports = authMiddleware;
 
-// ==============================================
+/** ==============================================
 
 var Campground = require('../models/campground');
 var Comment = require('../models/comment');
@@ -91,3 +91,4 @@ middlewareObj.isLoggedIn = function (req, res, next) {
 
 
 module.exports = middlewareObj;
+*/

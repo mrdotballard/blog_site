@@ -10,22 +10,26 @@ const bodyParser = require('body-parser'),
   MySQLStore = require('express-mysql-session')(session),
   authMiddleware = require('./middleware/auth'),
   passport = require('passport'),
+  // passport = require('./lib/passport-strategy'),
   LocalStrategy = require('passport-local').Strategy;
 
 // MYSQL/DATABASE CONFIG
 require('dotenv').config();
-const { database } = require('./keys');
-const pool = require('./database'); // use pool to get connection
+const { database } = require('./lib/keys');
+const pool = require('./lib/database'); // use pool to get connection
 
 //  APP INITIALISE
 const app = express();
-// const passportConfig = require('./passport');
+
+// import simply makes code available here
+// i.e. this requrie doesn't return anything via module.exports
+require('./lib/passport-strategy'); 
 
 // APP CONFIG
 app.set('port', process.env.PORT);
 // app.set('views', path.join(__dirname, 'views'));
 app.set("view engine", "ejs");
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/public")); // needed?
 
 // MIDDLEWARES
 app.use(session({
@@ -44,42 +48,9 @@ app.use(methodOverride("_method"));
 app.use(expressSanitizer()); //html sanitizer
 
 
-// require('./passport')(passport);
-
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new LocalStrategy((username, password, done) => {
-  pool.query("SELECT * FROM user WHERE username = ?", [username], (err, results, fields) => {
-    if(err) return done(err);
-  
-    if(results.length < 1) return done(null, false, { message: 'No such user' });
-
-    user = results[0];
-
-    bcrypt.compare(password, user.password, (err, isValid) => {
-      if(err) return done(err);
-
-      if(!isValid)
-        return done(null, false, { message: 'Incorrect password' });
-
-      return done(null, user, { message: 'Logged in successfully' });
-    });
-  });
-
-}));
-passport.serializeUser((user, done) => {
-  console.log('here');
-  done(null, user.user_id);
-});
-
-passport.deserializeUser((id, done) => {
-  pool.query("SELECT * FROM user WHERE user_id = ? ", [id], (err, result) => {
-    if (err) return done(err); // err from mysql
-    if (result.length < 1) done(null, false); // user_id not found in user table
-    done(null, result[0]); // user returned for deserializing
-  });
-});
 // GLOBAL
 app.use((req, res, next) => {
   res.locals.message = req.flash('error');
@@ -87,7 +58,6 @@ app.use((req, res, next) => {
   app.locals.user = req.user; 
   next();
 });
-
 
 
 // RESTFUL ROUTES CONFIG
@@ -170,7 +140,6 @@ app.post('/register', (req, res) => {
         console.log(err);
         return res.render('./views/register');
       }
-      req.flash('message', 'you are logged in');
       return res.redirect('/blogs/bjr');
     });
 

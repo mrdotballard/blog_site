@@ -2,7 +2,7 @@
 const LocalStrategy = require('passport-local').Strategy;
 
 // we can require database.js at any time for access to pooled connections to DB
-const pool = require('./database');
+const pool = require('./lib/database');
 const bcrypt = require('./bcrypt-helper');
 
 // *** Below equivelent of Mongoose schema models.

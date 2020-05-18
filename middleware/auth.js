@@ -2,15 +2,6 @@ const passport = require('passport');
 
 const authMiddleware = {};
 
-authMiddleware.register = passport.authenticate('local.register', {
-
-});
-
-authMiddleware.signIn = passport.authenticate('local.signin', {
-    successRedirect: '/blogs',
-    failureRedirect: '/blogs',
-    failureFlash: true
-});
 
 authMiddleware.isLoggedIn = (req, res, next) => {
     if(req.isAuthenticated()) 

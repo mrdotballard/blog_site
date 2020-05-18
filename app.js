@@ -53,7 +53,7 @@ app.use(passport.session());
 
 // GLOBAL
 app.use((req, res, next) => {
-  res.locals.message = req.flash('error');
+  res.locals.error = req.flash('error');
   res.locals.success = req.flash('success');
   app.locals.user = req.user; 
   next();
@@ -93,7 +93,7 @@ function isLoggedIn(req, res, next){
   if(req.isAuthenticated()){
     next();
   } else{
-    req.flash('message', 'You must be logged in to view this page');
+    req.flash('error', 'You must be logged in to view this page');
     res.redirect('/login');
   }
 }
@@ -107,44 +107,45 @@ app.post('/register', (req, res) => {
   newUser = req.body.user;
   
   if(!newUser.username || newUser.username.trim() === '') 
-    return res.render('register', { message: "Username cannot be blank" });
+    return res.render('register', { error: "Username cannot be blank" });
   if(!newUser.password || newUser.password.trim() === '')
-    return res.render('register', { message: "Password cannot be blank" });
+    return res.render('register', { error: "Password cannot be blank" });
 
+  // check user doesn't already exist in DB
+  // adding of new user stays within this block as it's not async 
+  // i.e. while waiting for pool.query it's already added duplicat user
   pool.query('SELECT * FROM user WHERE username = ? OR email = ?', [newUser.username, newUser.email], (err, result, fields) => {
     if(err) {
       console.log("sql error " + err);
       throw err;
     }
     if(result.length > 0) {
-      console.log('username or email already in DB');
-      return res.render('register');
+      return res.render('register', { error: 'Username or email already in use' });
     }
-  });
 
-  newUser.password =  bcrypt.hashSync(newUser.password, 10);
+    // hash pw and add new user 
+    newUser.password =  bcrypt.hashSync(newUser.password, 10);
 
-  pool.query('INSERT INTO user SET ?', newUser, (err, result, fields) => {
-    if(err) {
-      console.log(err);
-      throw err;
-    
-    }
-    newUser.id = result.insertId;
-    console.log("User added to DB");
-    console.log(newUser);
-
-    // once user succesfully added to DB, sign them in
-    req.login(newUser, (err) => {
+    pool.query('INSERT INTO user SET ?', newUser, (err, result, fields) => {
       if(err) {
         console.log(err);
-        return res.render('./views/register');
+        throw err;
+      
       }
-      return res.redirect('/blogs/bjr');
+      newUser.user_id = result.insertId;
+      console.log("User added to DB");
+      console.log(newUser);
+  
+      // once user succesfully added to DB, sign them in
+      req.login(newUser, (err) => {
+        if(err) {
+          console.log(err);
+          return res.render('register');
+        }
+        req.flash('success', 'Logged in successfully');
+        return res.redirect('/blogs/bjr');
+      });       
     });
-
-    // req.flash('success', 'registered sucessfully- welcome');
-     
   });
 });
 

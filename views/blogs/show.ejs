@@ -11,11 +11,13 @@
         <!-- <p></p><%- blog.body %> </p> -->
         <%- blog.content %>
       </div>
-      
+      <% if(user && (blog.user_id === user.user_id || 
+        user.username === "matthew")) { %>
       <form id="delete" action="/blogs/<%= blog.blog_id %>?_method=DELETE" method="POST">
         <button class="ui red basic button">Delete</button>
       </form>
       <a href="/blogs/<%= blog.blog_id %>/edit" class="ui orange basic button">Edit</a>
+      <% } %>
     </div>
     </div>
 </div>

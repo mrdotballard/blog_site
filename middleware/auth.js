@@ -1,14 +1,46 @@
 const passport = require('passport');
+require('dotenv').config();
+const pool = require('../lib/database');
 
 const authMiddleware = {};
 
-
 authMiddleware.isLoggedIn = (req, res, next) => {
-    if(req.isAuthenticated()) 
-        next();
-    req.flash("error", "Plese login first");
-    res.redirect("/register");
-    }
+  if(req.isAuthenticated()){
+    next();
+  } else{
+    req.flash('error', 'You must be logged in to view that page');
+    res.redirect('/login');
+  }
+}
+
+authMiddleware.checkBlogOwnerShip = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    // Select request blog via blog_id
+    pool.query("SELECT * FROM blog WHERE blog_id = ?", req.params.blog_id, 
+      (error, result, fields) => {
+        if(error || result.length < 1) {
+          req.flash("error", "Blog not found");
+          res.redirect("/blogs");
+        } else {
+          if(result[0].username === req.user.username || req.user.username === "matthew") {
+            res.locals.foundBlog = result[0];
+            next();
+          } else {
+            console.log('authenticated but not owner?');
+            req.flash('error', 'You do not have permission to do that');
+              res.redirect('/blogs');
+            // res.render('blogs/index');
+          } 
+        } 
+    });
+  } else {
+    console.log(`not authenticated, redirect to`);      
+    req.flash("error", "You don't have permission to do that");
+    res.redirect('/blogs');
+  }
+};
+
+
 module.exports = authMiddleware;
 
 /** ==============================================

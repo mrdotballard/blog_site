@@ -20,6 +20,7 @@ DESCRIBE user;
 CREATE TABLE IF NOT EXISTS blog(
   blog_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   user_id INT,
+  username VARCHAR(100),
   image VARCHAR(100), -- store file name or location
   title VARCHAR(100),
   intro TEXT,

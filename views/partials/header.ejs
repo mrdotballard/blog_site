@@ -20,27 +20,63 @@
   <!-- </div> -->
   <div class="right menu">
     <% if(!user) { %>
-    <a href="/register" class="item">Register</a>
-    <a href="/login" class="item">Login</a>
+      <a href="/register" class="item">Register</a>
+      <a href="/login" class="item">Login</a>
+    <% } else if (user.username == 'matthew') { %>
+      <a href="#" class="item">Hi, <%= user.first_name %></a>
+      <a href="/manage" class="item">Manage</a>
+      <a href="/logout" class="item">Logout</a>
     <% } else { %>
-    <a href="#" class="item">Hi, <%= user.first_name %></a>
-    <a href="/logout" class="item">Logout</a>
+      <a href="#" class="item">Hi, <%= user.first_name %></a>
+      <a href="/logout" class="item">Logout</a>
     <% } %>
   </div>
 </div>
 
 
+
+
+
+
 <!-- logic to display flash messages -->
-<div class="ui container main">
-<div class="ui container flash">
-  <% if(error && error.length > 0) { %>
-  <div class="ui warning message" role="alert">
-    <%= error %>
+<div class="ui container main stackable grid">
+  <div class="ui vertical menu three wide column">
+    <a class="teal item">
+      Inbox
+      <div class="ui teal left pointing label">1</div>
+    </a>
+    <a class="item">
+      Spam
+      <div class="ui label">51</div>
+    </a>
+    <a class="item active">
+      Updates
+      <div class="ui label">1</div>
+    </a>
+    <div class="item">
+      <div class="ui transparent icon input">
+        <input type="text" placeholder="Search mail...">
+        <i class="search icon"></i>
+      </div>
+    </div>
   </div>
-  <% } 
-    if(success && success.length > 0) { %>
-  <div class="ui success message" role="alert">
-    <%= success %>
+
+  <div class="two wide column"></div>
+
+  <div class="ten wide column page-content">
+
+    <% if(error && error.length > 0) { %>
+  <div class="ui container flash">
+    <div class="ui warning message" role="alert">
+      <%= error %>
+    </div>
   </div>
   <% } %>
-</div>
+
+<% if(success && success.length > 0) { %>
+  <div class="ui container flash">
+    <div class="ui success message" role="alert">
+      <%= success %>
+    </div>
+  </div>
+  <% } %>

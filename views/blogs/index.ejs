@@ -1,6 +1,5 @@
 <% include ../partials/header %>
 
-<div class="ui main text container">
   <div class="ui huge header">RESTful Blog App  </div>
 
     <div class="ui top attached segment">
@@ -16,14 +15,15 @@
               <div class="content">
                   <a class="header" href="/blogs/<%=blog.id%>"><%= blog.title %></a>
                   <div class="meta">
-                      <span><%= blog.created.toDateString() %> | <%= blog.user_id %> </span>
+                      <span><%= blog.created.toDateString() %> | <%= blog.username %> </span>
                   </div>
               <div class="description">
-                  <p><%= blog.content.substring(0, 100) %>...</p>
+                  <!-- <p><%= blog.content.substring(0, 100) %>...</p> -->
+                  <p><%= blog.intro %>...</p>
               </div>
               <div class="extra">
                   <a class="ui floated basic violet button" href="/blogs/<%=blog.blog_id%>">
-                    Read mor <i class="right chevron icon"></i>
+                    Read <i class="right chevron icon"></i>
                   </a>
               </div>
             </div>
@@ -33,9 +33,8 @@
       </div>  
       
     </div>
-</div>
 
 
 
 
-<% include ../partials/header %>
+<% include ../partials/footer %>

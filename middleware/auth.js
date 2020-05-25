@@ -13,6 +13,20 @@ authMiddleware.isLoggedIn = (req, res, next) => {
   }
 }
 
+authMiddleware.isAuthorised = (req, res, next) => {
+  if(req.isAuthenticated()){
+    if(req.user.username === "matthew") {
+      next();
+    } else {
+      req.flash('error', 'You do not have permission to view that page');
+      res.redirect('/blogs');
+    }
+  } else {
+    req.flash('error', 'You must be logged in to view that page');
+    res.redirect('/login');
+  }
+}
+
 authMiddleware.checkBlogOwnerShip = (req, res, next) => {
   if (req.isAuthenticated()) {
     // Select request blog via blog_id

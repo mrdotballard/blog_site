@@ -6,7 +6,7 @@ require('dotenv').config();
 const pool = require('../lib/database');
 
 router.get("/", function(req, res) {
-	res.redirect("/blogs");
+	res.redirect("/blogs"); // redirecting to /blogs consumes flash messages and so will not display
 });
   
 // AUTH ROUTE

@@ -21,3 +21,12 @@ i.icon {
 .pink {
   color: pink;
 }
+
+.tag-item {
+  margin: 2px !important;
+}
+
+.add-tag-btn {
+  height: 35px;
+  margin-top: 25px !important;
+}

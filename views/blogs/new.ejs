@@ -4,7 +4,22 @@
   
   <form class="ui form" action="/blogs" method="POST">
     <div class="field">
-      <label>Title</label>
+      <label>Select Tags</label>
+      <% if(typeof tags === 'string') { %>
+        <p><%= tags %></p>
+      <% } else { %>
+       <% tags.forEach(function(tag){ %>
+        <!-- passed to params as blogTags[value] -->
+          <div style="background-color: <%= tag.color %>;" class="ui checkbox select-tag-div">  
+            <input type="checkbox" id="<%= tag.tag_id %>" name="blogTags" value="<%= tag.tag_id %>">
+            <label class="select-tag-label" for="<%= tag.tag_id %>"><%= tag.name %></label>
+          </div>
+        <% }) %>
+        <% } %> 
+    </div>
+    <!-- rest of fields passed as blog[...] -->
+    <div class="field">
+      <label>Title</label> 
       <input type="text" name="blog[title]"placeholder="title">
     </div>
     

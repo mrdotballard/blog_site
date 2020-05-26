@@ -22,8 +22,19 @@ i.icon {
   color: pink;
 }
 
+/* NEW BLOG PAGE */
+.select-tag-div {
+  padding: 5px;
+  margin-left: 3px !important;
+  border-radius: 5px;
+}
+.select-tag-label {
+  cursor: pointer !important;
+}
+/* MANAGE PAGE */
 .tag-item {
   margin: 2px !important;
+  cursor: pointer;
 }
 
 .add-tag-btn {

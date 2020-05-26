@@ -19,26 +19,49 @@ router.get("/", (req, res) => {
 
 
 // NEW/CREATE ROUTE
-router.get("/new", authMiddleware.isLoggedIn, function(req, res){
-	res.render("./blogs/new");
+router.get("/new", authMiddleware.isLoggedIn, function(req, res, done){
+	// get tag list to send to new view
+	pool.query('SELECT * FROM tag', (err, result) => {
+		if(err) throw err;
+		if(result.length > 0) 
+			res.render("./blogs/new", { tags: result });
+		else
+			res.render("./blogs/new", { tags: "No tags created" });
+	});
 });
 
 router.post("/", authMiddleware.isLoggedIn, async (req, res, done) => {
-	// 1) Create bog
 	// req.body.blog.body = req.sanitize(req.body.blog.body);
-	var post = req.body.blog;
+	let post = req.body.blog;
 	post.user_id = req.user.user_id;
 	post.username = req.user.username;
 
-		// var sql = "INSERT INTO blog (name, image, body) VALUES ('Test Blog', 'https://source.unsplash.com/random/400x300', 'Here in lies the body of the blog. Bloggidy bloggedie blog.')";
+	let tags = req.body.blogTags; //post and tags coming from 'new' view POST
+
 	await pool.query('INSERT INTO blog SET ?', post, function(err, result) {
 		if (err) throw err;
-		if(result.length > 0) console.log("Blow written to DB");
-		// 2) redirect
-		// console.log(result);
+		// if post inserted successfully check for tags and add them to post
+		let blogID = result.insertId; // get returned blog_id for relation table
+		let tagParams = [];
+
+		if(tags && typeof tags === 'string') { // only one tag selected - param given as string
+			tagParams = [
+				[blogID, tags]
+			];
+		} else if(tags) { // if tags is defined then more than one tag selected - param is array of strings
+			tags.forEach(tag => {
+				tagParams.push([blogID, tag]); //a nested array of blog_id and tag_id
+			});
+		}
+
+		pool.query('INSERT INTO blog_tag (blog_id, tag_id) VALUES ?', [tagParams], (err, result) => {
+			if(err) throw err;
+			if(result) console.log(result);
+		});
+		 
 		return done(null, result, res.redirect("/blogs"));
 	});
-});
+}); 
 
 // SHOW ROUTE
 router.get("/:blog_id", function(req, res){
@@ -47,7 +70,7 @@ router.get("/:blog_id", function(req, res){
 		if(err || !result[0]){
 			console.log("DB error thrown: " + err);
 			req.flash('error', 'No such blog');
-			res.redirect("/blogs");
+			res.redirect("/blogs"); 
 		} else{
 			console.log(result[0]);
 			res.render("./blogs/show", {blog: result[0]}); 

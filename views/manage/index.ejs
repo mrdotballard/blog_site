@@ -14,7 +14,7 @@
         <p><%= tags %></p>
     <% } else {
         tags.forEach(function(tag){ %>
-            <div style="background-color: <%= tag.color %>" 
+            <div style="background-color: <%= tag.color %>;" 
                 class="ui label tag-item" data-tag-id="<%= tag.tag_id %>"> 
                 <%= tag.name %>
             </div>
@@ -30,8 +30,9 @@
  -->
 <div class="ui segment">
     <div class="ui medium header">Tag Info 
-    </div>
-    <form class="ui form" id="update-tag" action="/manage/update-tag" method="POST">
+		</div>
+		
+    <form class="ui form" id="update-tag" action="/manage/update-tag?_method=PUT" method="POST">
 			<div class="fields">
         <div class="field">
             <label>Name</label>
@@ -47,8 +48,6 @@
 
 				<!-- add no. post tagged -->
 			</div>
-
-			
 			<button type="submit" class="ui small button green inverted">update</button> 
 
 			<!-- <form id="delete-tag" action="/manage/<%= //tag[tag_id] %>?_method=DELETE" method="POST">
@@ -93,7 +92,7 @@
 		if(e.target && e.target.matches("div.tag-item")) {
 			// set name into field
 			$("#update-tag input[name='tag[name]']").val(e.target.innerText);
-			// innerText doesn't return wrapped whitespace, textContent/innerHTML does, hence below regexp to remove whitespace.
+			// innerText doesn't return wrapped whitespace, textContent/innerHTML does, hence below regexp to remove whitespace from textContent/innerHTML.
 			// $("#update-tag input[name='tag[name]']").val(e.target.textContent.replace(/^\s+|\s+$/g, ''));
 
 			// convert rgb to hex and set color into field
@@ -101,8 +100,8 @@
 			$("#update-tag input[name='tag[color]']").val(
 				'#' + rgb.substr(4, rgb.indexOf(')') - 4).split(',').map((color) => parseInt(color).toString(16)).join(''));
 
+			// set tag_id into field
 			$("#update-tag input[name='tag[tag_id]']").val(e.target.dataset.tagId);
-			console.log(e.target.dataset.tagId);
 		}
 	});
 		

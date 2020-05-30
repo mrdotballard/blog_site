@@ -1,6 +1,21 @@
 <% include ../partials/header %>
+
 <div class="ui text container">
+  <div class="blog-show-header-wrapper">
   <div class="ui huge header"><%= blog.title %></div>
+  <% let parseTags = JSON.parse(blog.tags);
+  <!-- test there are tags to display -->
+  if(parseTags) { %>
+      <div> 
+       <% parseTags.forEach((tag) => { %>
+          <div style="background-color: <%= tag.color %>;" 
+          class="ui mini label tag-item" data-tag-id="<%= tag.tag_id %>"> 
+          <%= tag.name %>
+        </div>
+        <% }) %>
+</div>
+ <% } %>
+</div>
   <div class="ui top attached segment">
     <div class="item">
         <img class="ui centered rounded image"src="<%= blog.image %>">

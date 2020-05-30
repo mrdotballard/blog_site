@@ -1,21 +1,31 @@
 <% include ../partials/header %>
 
   <div class="ui huge header">RESTful Blog App  </div>
-
     <div class="ui top attached segment">
-      
       <div class="ui divided items">
-        
-          <% blogs.forEach(function(blog){ %>
-            
+        <% if(typeof blogs === 'string') { %>
+          <p><%= blogs %></p>
+        <% } else { 
+          blogs.forEach(function(blog){ %>
             <div class="item"> 
               <div class="image">
                   <img src="<%= blog.image %>">
               </div>
               <div class="content">
-                  <a class="header" href="/blogs/<%=blog.id%>"><%= blog.title %></a>
+                  <a class="header" href="/blogs/<%=blog.id%>"><h2><%= blog.title %></h2></a>
+                  <!-- test there are tags to display -->
+                  <% if(JSON.parse(blog.tags)[0].id) { %>
+                    <div class="extra"> <!--for tag list-->
+                    <% JSON.parse(blog.tags).forEach((tag) => { %>
+                      <div style="background-color: <%= tag.color %>;" 
+                        class="ui mini label tag-item" data-tag-id="<%= tag.tag_id %>"> 
+                        <%= tag.name %>
+                      </div>
+                    <% }) %>
+                  </div>
+                <% } %>
                   <div class="meta">
-                      <span><%= blog.created.toDateString() %> | <%= blog.username %> </span>
+                      <span><%= blog.created.toDateString() %> &nbsp;|&nbsp; <%= blog.username %> </span>
                   </div>
               <div class="description">
                   <!-- <p><%= blog.content.substring(0, 100) %>...</p> -->
@@ -23,13 +33,13 @@
               </div>
               <div class="extra">
                   <a class="ui floated basic violet button" href="/blogs/<%=blog.blog_id%>">
-                    Read <i class="right chevron icon"></i>
+                    Read <i class="right large chevron icon"></i>
                   </a>
               </div>
             </div>
             </div>
             
-          <% }) %>
+          <% })} %>
       </div>   
       
     </div>

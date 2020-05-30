@@ -3,7 +3,7 @@
   <div class="ui huge header">New Blog</div>
   
   <form class="ui form" action="/blogs" method="POST">
-    <div class="field">
+    <div class="field blog-tag-list">
       <label>Select Tags</label>
       <% if(typeof tags === 'string') { %>
         <p><%= tags %></p>

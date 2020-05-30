@@ -35,7 +35,7 @@ app.set('port', process.env.PORT);
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public")); // needed?
 
-// MIDDLEWARES
+// MIDDLEWARES  
 app.use(session({ 
   secret: 'mysessionsecretabc123',
   resave: false,

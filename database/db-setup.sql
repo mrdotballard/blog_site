@@ -46,7 +46,9 @@ DESCRIBE tag;
 CREATE TABLE IF NOT EXISTS blog_tag(
   blog_id INT NOT NULL,
   tag_id INT NOT NULL,
-  PRIMARY KEY (blog_id, tag_id)
+  PRIMARY KEY (blog_id, tag_id),
+  FOREIGN KEY (tag_id) REFERENCES tag(tag_id) ON DELETE CASCADE,
+  FOREIGN KEY (blog_id) REFERENCES blog(blog_id) ON DELETE CASCADE
 );
 
 DESCRIBE blog_tag;

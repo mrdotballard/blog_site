@@ -21,7 +21,7 @@ router.post('/login', passport.authenticate('local', {
 	failureFlash: true,
 	successFlash: true
 })
-); 
+);  
 
 router.get('/logout', function(req, res) {
 	req.logout();
@@ -33,9 +33,11 @@ router.get('/logout', function(req, res) {
 router.get('/register', (req, res) => {
 	res.render('register');
 });
-  
+router.get('/favicon.ico', (req, res) => {
+	res.status(204); //prevent response to browser's GET for favicon (which should be in root folder)
+});
 router.post('/register', (req, res) => {
-	newUser = req.body.user;
+	newUser = req.body.user;   
 
 	if(!newUser.username || newUser.username.trim() === '') 
 			return res.render('register', { error: "Username cannot be blank" });

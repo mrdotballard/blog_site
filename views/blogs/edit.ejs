@@ -4,6 +4,33 @@
   
   <!-- forms currently not supporting PUT or DELETE methods, so express uses 'method-override' -->
   <form class="ui form" action="/blogs/<%= blog.blog_id %>?_method=PUT" method="POST">
+   
+    <div class="field blog-tag-list">
+      <label>Select Tags</label>
+      <!-- inject blogs already selected tags into <p> element 
+          for JS to get out and check agains all tags list -->
+      <% let parseTags = JSON.parse(blog.tags);
+      <!-- check blog has any tags selected -->
+      if(parseTags) { %>
+        <p style="display: none;" class="ejsVar"><%= blog.tags %></p>
+      <% } %>
+
+      <!-- test string which means no tags to display 
+          message will be "No tags to display" -->
+      <% if(typeof allTags === 'string') { %>
+        <p><%= allTags %></p>
+      <% } else {
+        allTags.forEach(function(tag){ %>
+        <!-- passed back to params as blogTags[value] -->
+          <div style="background-color: <%= tag.color %>;" class="ui checkbox select-tag-div">  
+            <input type="checkbox" id="<%= tag.tag_id %>" name="blogTags" value="<%= tag.tag_id %>">
+            <label class="select-tag-label" for="<%= tag.tag_id %>"><%= tag.name %></label>
+          </div>
+        <% }) %>
+        <% } %> 
+        
+    </div>
+
     <div class="field">
       <label>Title</label>
       <input type="text" name="blog[title]" value="<%= blog.title %>">
@@ -15,12 +42,42 @@
     </div>
     
     <div class="field">
+      <label>Blog Into</label>
+      <textarea name="blog[intro]" cols="30" rows="5"><%= blog.intro %></textarea>
+    </div>
+
+    <div class="field">
       <label>Blog Post</label>
       <textarea name="blog[content]" cols="30" rows="10" required><%= blog.content %></textarea>
     </div>
     
-    <button class="ui big inverted teal button">Submit!</button>
+    <button class="ui big inverted teal button">Update!</button>
 
   </form>
 </div>
+
+<script>
+// pre-select checkboxes for this blog's tags
+  $(window).bind("load", () => {
+  let ejs = $(".ejsVar")[0].innerText;
+  let allTagsCheckbox = $("input[type='checkbox']");
+  //console.log(allTagsCheckbox);
+  let selectedTags = JSON.parse(ejs);
+  // console.log((selectedTags));
+
+  allTagsCheckbox.each((i, v) => {
+    selectedTags.forEach((t, i) => {
+      console.log(t.id + " - " + v.id);
+      if(t.id === parseInt(v.id)) {
+       console.log("true");
+        v.checked = !v.checked;
+      }
+    });
+    // console.log(i + " + " + v.id);
+    // v.checked = !v.checked;
+  });
+
+
+  });
+</script>
 <% include ../partials/footer %>

@@ -25,18 +25,30 @@ i.icon {
 /* NEW BLOG PAGE */
 .select-tag-div {
   padding: 5px;
+  padding-right: 9px;
   margin-left: 3px !important;
   border-radius: 5px;
 }
 .select-tag-label {
   cursor: pointer !important;
 }
+/* BLOG PAGES */
+.blog-tag-list {
+  padding-bottom: 30px;
+}
+/* BLOG SHOW PAGE */
+.blog-show-header-wrapper .header{
+  margin-bottom: 0;
+}
 /* MANAGE PAGE */
 .tag-item {
   margin: 2px !important;
   cursor: pointer;
 }
-
+#blog-count {
+  text-align: center;
+  vertical-align: middle;
+}
 .add-tag-btn {
   height: 35px;
   margin-top: 25px !important;

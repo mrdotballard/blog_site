@@ -40,7 +40,9 @@
 				</div>
 				<div class="field">
 					<label>Hex Color</label>
-					<input type="text" name="tag[color]" required>
+					<input id="info-hex" type="text" name="tag[color]" required>
+					<p id="info-not-hex" style="color: red;display: none;">Value not hexidecimal</p>
+
 				</div>
 				<div class="field">
 					<label>Blog Count</label>
@@ -53,7 +55,10 @@
 
 				<!-- add no. post tagged -->
 			</div>
-			<button type="submit" class="ui small button green inverted">update</button> 
+			<button type="submit" onclick="JavaScript: 
+			return checkHex(document.getElementById('info-hex').value, 'update-tag')" 
+			class="ui small button green inverted">update</button> 
+
 			<button type="submit" class="ui small button inverted orange" 
 			formaction="/manage?_method=DELETE">delete</button>
 			<!-- <form id="delete-tag" action="/manage?_method=DELETE" method="POST">
@@ -79,10 +84,12 @@
         </div>
         <div class="field">
             <label>Hex Color</label>
-            <input type="text" name="tag[color]">
-            <p id="not-hex" style="color: red;display: none;">Value not hexidecimal</p>
+            <input id="add-hex" type="text" name="tag[color]">
+            <p id="add-not-hex" style="color: red;display: none;">Value not hexidecimal</p>
 				</div>
-        <button type ="submit" onclick="JavaScript: return checkHex()" class="ui inverted green tag label button add-tag-btn">Add tag</button>
+				<button type ="submit" onclick="JavaScript: 
+				return checkHex(document.getElementById('add-hex').value, 'add-tag')" 
+				class="ui inverted green tag label button add-tag-btn">Add tag</button>
     </div>
 </form>
 </div>
@@ -99,6 +106,9 @@
 	$(".tag-index").on("click", function(e) {
 		// if tag was clicked else ignore
 		if(e.target && e.target.matches("div.tag-item")) {
+			// remove possible 'not hex' warning from info section
+			$("#info-not-hex").css("display", "none");
+			
 			// set blog count
 			$("#update-tag input[name='blog-count']").val(e.target.dataset.blogCount);
 
@@ -144,15 +154,20 @@
 		// ==========
 		// Validate hex value
 		// ==========
-		function checkHex() {
+		function checkHex(hexValue, element) {
 				// regex to check legit hex value
-				const regex = new RegExp(/^#(?:[0-9a-f]{3}){1,2}$/, 'i');
-				const hexValue = $("#add-tag input[name='tag[color]']").val();
-				if(!regex.test(hexValue)) {
-						$("#not-hex").css("display", "block");
-						return false;
+				const regexp = new RegExp(/^#(?:[0-9a-f]{3}){1,2}$/, 'i');
+				// const hexValue = $("#add-tag input[name='tag[color]']").val();
+				console.log(hexValue);
+				if(!regexp.test(hexValue)) {
+					if(element === "add-tag")
+						$("#add-not-hex").css("display", "block");
+					else
+						$("#info-not-hex").css("display", "block");
+						
+					return false;
 				} else {
-						$("#add-tag").submit(); // if hex value then submit form
+						$("#"+element).submit(); // if hex value then submit form
 						// return true;
 				}
 		}

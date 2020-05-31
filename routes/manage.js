@@ -19,7 +19,7 @@ router.get('/', authMiddleware.isAuthorised, (req, res) => {
 			console.log("DB error here " + err.message);
 			throw err;
 		}
-		console.log("result: " + result);
+		console.log("result: " + JSON.stringify(result));
 		if(result.length > 0) res.render("./manage/index", { tags: result });
         else res.render("./manage/index", { tags: "No tags created" });
         
@@ -47,7 +47,7 @@ router.put('/update-tag', authMiddleware.isAuthorised, async (req, res, done) =>
     let tagID = req.body.tag.tag_id;
     let tagName = req.body.tag.name;
     let tagColor = req.body.tag.color;
-
+		console.log(tagID + " " + tagColor);
     let sql = "UPDATE tag SET name = ?, color = ? WHERE tag_id = ?";
 
     await pool.query(sql, [tagName, tagColor, tagID], (err, result) => {

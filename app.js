@@ -40,6 +40,7 @@ app.use(session({
   secret: 'mysessionsecretabc123',
   resave: false,
   saveUninitialized: false,
+  SameSite: true,
   store: new MySQLStore(database)
 }));
 
@@ -63,7 +64,8 @@ app.use((req, res, next) => {
   app.locals.user = req.user; 
   next();
 });
-
+  
+app.use(require('./middleware/tags-menu')); //sends tag array in each request for header partial to use
 
 
 app.use("/", indexRoutes);

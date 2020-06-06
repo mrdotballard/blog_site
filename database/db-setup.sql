@@ -1,4 +1,4 @@
-CREATE DATABASE myblog;
+/**CREATE DATABASE IF NOT EXISTS myblog; **/
 
 USE myblog;
 

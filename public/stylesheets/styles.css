@@ -1,19 +1,16 @@
 i.icon {
   font-size: 2em;
 }
-.main .menu {
-  margin-top: 15px !important;
-  height: 100%;
-}
-.container.main {
-  margin-top: 60px;
+
+.tags-sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 70px;
 }
 .page-content {
-  margin-top: 0;
+  top: 70px;
 }
-.flash{
-  margin-bottom: 50px;
-}
+
 #delete {
   display: inline;
 }
@@ -52,4 +49,14 @@ i.icon {
 .add-tag-btn {
   height: 35px;
   margin-top: 25px !important;
+}
+.tag-menu-count {
+background: white;
+border: white 1px solid;
+border-radius: 50%;
+display: inline-block;
+height: 14px;
+padding-left: 2px;
+width: 14px;
+margin-left: 3px;
 }

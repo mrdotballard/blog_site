@@ -9,7 +9,7 @@ const pool = require('../lib/database'); //require dotenv config each time creat
 router.get("/", (req, res) => {
 	/** must be LEFT JOIN else returns nothing, since there is no
 		blog_id in blog_tag table. LEFT JOIN still returns matches in 'left' table, i.e. blog table **/
-	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b LEFT JOIN blog_tag bt ON bt.blog_id = b.blog_id LEFT JOIN tag t ON bt.tag_id = t.tag_id GROUP BY b.blog_id", (err, allBlogs) => {
+	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b LEFT JOIN blog_tag bt ON bt.blog_id = b.blog_id LEFT JOIN tag t ON bt.tag_id = t.tag_id GROUP BY b.blog_id ORDER BY b.created DESC", (err, allBlogs) => {
 		if (err) {
 			console.log("DB error here");
 			throw err; 
@@ -21,12 +21,13 @@ router.get("/", (req, res) => {
 			// console.log(JSON.parse(allBlogs[0].tags)[0].color);
 			// multipul blogs returned so pass entire array - without [0] index
 			res.render("./blogs/index", { blogs: allBlogs });
+			res.end();
 			});
 		} 
 		else res.render("./blogs/index", { blogs: "Sorry no blogs to display" });
 	}); 
 }); 
-
+ 
 
 // NEW ROUTE
 router.get("/new", authMiddleware.isLoggedIn, function(req, res, done){
@@ -79,7 +80,7 @@ router.post("/", authMiddleware.isLoggedIn, async (req, res, done) => {
 router.get("/:blog_id", function(req, res){
 	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b JOIN blog_tag bt ON bt.blog_id = b.blog_id JOIN tag t ON bt.tag_id = t.tag_id WHERE b.blog_id = ?", [req.params.blog_id],
 	(err, result) => {
-		if(err || !result[0]){
+		if(err || !result[0].blog_id){
 			console.log("DB error thrown: " + err);
 			req.flash('error', 'No such blog');
 			res.redirect("/blogs"); 
@@ -126,29 +127,33 @@ router.put("/:blog_id", authMiddleware.checkBlogOwnerShip, function(req, res) {
 	// update blog table
 	pool.query("UPDATE blog SET ? WHERE blog_id = ?", [req.body.blog, blogID], function(err, updatedBlog){
 		if(err) throw err;
-	});
 
-	// remove all tags
-	pool.query("DELETE FROM blog_tag WHERE blog_id = ?", blogID, (err, result) => {
-		if(err) throw err;
-	});
-
-	if(tags && typeof tags === 'string') { // only one tag selected - param given as string
-		tagParams = [
-			[blogID, tags]
-		];
-	} else if(tags) { // if tags is defined then more than one tag selected - param is array of strings
-		tags.forEach(tag => {
-			tagParams.push([blogID, tag]); //a nested array of blog_id and tag_id
-		});
-	}
-	// update new tags if any
-	if(tags) {
-		pool.query("INSERT INTO blog_tag (blog_id, tag_id) VALUES ?", [tagParams], (err, result) => {
+			// remove all tags
+		pool.query("DELETE FROM blog_tag WHERE blog_id = ?", blogID, (err, result) => {
 			if(err) throw err;
-		})
-	}
-	res.redirect("/blogs/" + blogID);
+
+			if(tags && typeof tags === 'string') { // only one tag selected - param given as string
+				tagParams = [
+					[blogID, tags]
+				];
+			} else if(tags) { // if tags is defined then more than one tag selected - param is array of strings
+				tags.forEach(tag => {
+					tagParams.push([blogID, tag]); //a nested array of blog_id and tag_id
+				});
+			}
+			// update new tags if any
+			if(tags) {
+				pool.query("INSERT INTO blog_tag (blog_id, tag_id) VALUES ?", [tagParams], (err, result) => {
+					if(err) throw err;
+				})
+			}
+			res.redirect("/blogs/" + blogID);
+		});
+	});
+
+
+
+
 
 }); 
 

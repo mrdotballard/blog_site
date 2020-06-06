@@ -5,6 +5,10 @@ const authMiddleware = require('../middleware/auth');
 require('dotenv').config();
 const pool = require('../lib/database');
 
+router.get('/favicon.ico', (req, res) => {
+	res.status(204); //prevent response to browser's GET for favicon (which should be in root folder)
+});
+
 router.get("/", function(req, res) {
 	res.redirect("/blogs"); // redirecting to /blogs consumes flash messages and so will not display
 });
@@ -33,9 +37,7 @@ router.get('/logout', function(req, res) {
 router.get('/register', (req, res) => {
 	res.render('register');
 });
-router.get('/favicon.ico', (req, res) => {
-	res.status(204); //prevent response to browser's GET for favicon (which should be in root folder)
-});
+
 router.post('/register', (req, res) => {
 	newUser = req.body.user;   
 

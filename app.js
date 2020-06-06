@@ -4,7 +4,7 @@ const bodyParser = require('body-parser'),
   bcrypt = require('bcryptjs'),
   mysql = require('mysql'),
   express = require('express'),
-  morgan = require('morgan'),
+  // morgan = require('morgan'),  not working in production
   session = require('express-session'),
   flash = require('connect-flash'),
   MySQLStore = require('express-mysql-session')(session),
@@ -45,7 +45,7 @@ app.use(session({
 }));
 
 app.use(flash());
-app.use(morgan('dev'));
+// app.use(morgan('dev')); not working in production
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(bodyParser.urlencoded({ extended: true }));

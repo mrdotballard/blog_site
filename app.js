@@ -73,11 +73,6 @@ app.use("/blogs", blogRoutes);
 app.use("/manage", manageRoutes);
 // app.use("/campgrounds/:id/comments", commentRoutes);
 
-
-app.get('/blogs/bjr', authMiddleware.isLoggedIn, (req, res) => {
-  res.render('./blogs/bjr');
-});
-
 // catch any incorrect url instead of html code 
 app.get('*', function(req, res) {
 	req.flash('error', 'No page there champ');

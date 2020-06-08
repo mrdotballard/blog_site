@@ -5,7 +5,7 @@
   <div class="ui huge header"><%= blog.title %></div>
   <% let parseTags = JSON.parse(blog.tags);
   <!-- test there are tags to display -->
-  if(parseTags) { %>
+  if(parseTags[0].id) { %>
       <div> 
        <% parseTags.forEach((tag) => { %>
           <div style="background-color: <%= tag.color %>;" 

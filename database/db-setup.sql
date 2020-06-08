@@ -1,7 +1,7 @@
-/**CREATE DATABASE IF NOT EXISTS myblog; **/
+/** CREATE DATABASE IF NOT EXISTS myblog; **/
 
+/* USE bzkkk1scamriqmkvgyes; */
 USE myblog;
-
 
     /*** CREATE TABLES***/
     -- USER

@@ -76,9 +76,11 @@ router.post("/", authMiddleware.isLoggedIn, async (req, res, done) => {
 	});
 });  
  
+
+
 // SHOW ROUTE
 router.get("/:blog_id", function(req, res){
-	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b JOIN blog_tag bt ON bt.blog_id = b.blog_id JOIN tag t ON bt.tag_id = t.tag_id WHERE b.blog_id = ?", [req.params.blog_id],
+	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b LEFT JOIN blog_tag bt ON bt.blog_id = b.blog_id LEFT JOIN tag t ON bt.tag_id = t.tag_id WHERE b.blog_id = ?", [req.params.blog_id],
 	(err, result) => {
 		if(err || !result[0].blog_id){
 			console.log("DB error thrown: " + err);

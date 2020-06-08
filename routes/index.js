@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const passport = require('passport');
 const authMiddleware = require('../middleware/auth');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const pool = require('../lib/database');
 
@@ -77,7 +78,7 @@ router.post('/register', (req, res) => {
 				return res.render('register');
 				}
 				req.flash('success', 'Logged in successfully');
-				return res.redirect('/blogs/bjr');
+				return res.redirect('/blogs');
 			});       
 		});
 	});

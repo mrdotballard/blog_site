@@ -7,7 +7,27 @@
 </html>
 
 <script>
-      $(".ui.sticky").sticky({
+
+  $(".ui.sticky").sticky({
     context: "#main-stick"
   });
+
+ window.onload = function() {
+  $(".ui.dropdown").dropdown();
+ } 
+
+ function checkScreenWidth(x) {
+   if(x.matches) {
+     $(".full-screen").css("display", "none");
+     $(".small-screen").css("display", "flex");
+   } else {
+    $(".small-screen").css("display", "none");
+    $(".full-screen").css("display", "flex");
+   }
+ }
+
+ var x = window.matchMedia("(max-width: 767px");
+ checkScreenWidth(x);
+ x.addListener(checkScreenWidth);
+
 </script>

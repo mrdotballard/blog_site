@@ -36,10 +36,15 @@ router.get('/logout', function(req, res) {
 
   // REGISTER ROUTE
 router.get('/register', (req, res) => {
-	res.render('register');
+	req.flash('success', 'Registrations not available');
+	return res.redirect('/blogs');
+// 	res.render('register');});
 });
 
 router.post('/register', (req, res) => {
+	req.flash('success', 'Registrations not available');
+	return res.redirect('/blogs');
+
 	newUser = req.body.user;   
 
 	if(!newUser.username || newUser.username.trim() === '') 

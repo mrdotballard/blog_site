@@ -19,7 +19,7 @@ router.get('/', authMiddleware.isAuthorised, (req, res) => {
 			console.log("DB error here " + err.message);
 			throw err;
 		}
-		console.log("result: " + JSON.stringify(result));
+
 		if(result.length > 0) res.render("./manage/index", { tags: result });
         else res.render("./manage/index", { tags: "No tags created" });
         

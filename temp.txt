@@ -1,0 +1,4 @@
+                      <div style="background-color: <%= tag.color %>;" 
+                        class="ui mini label tag-item" data-tag-id="<%= tag.tag_id %>"> 
+                        <%= tag.name %>
+                      </div>

@@ -19,6 +19,9 @@
 
 <body>
   
+  <!-- ######################
+      Menu for large display > 767px
+      #######################-->
 <div class="full-screen ui fixed inverted menu">
   <div class="header item"><a href="/"><i class="keyboard icon"></i>Blog Site</a></div>
   <a href="/" class="item">Home</a>
@@ -38,6 +41,10 @@
   </div>
 </div>
 
+  <!-- ######################
+      Menu for small display < 768px.
+      See javascript function in footer <script> for getting window size
+      #######################-->
 <div class="small-screen ui fixed inverted menu">
   <div class="header item"><a href="/"><i class="keyboard icon"></i>Blog Site</a></div>
   <% if(user) { %>
@@ -62,48 +69,62 @@
   </div>
 </div>
 
-  <div class="ui  container stackable grid">
-    <div class="four wide computer column page-content" style="padding-left: 40px;">
 
-      <div class="ui vertical fluid menu tags-sticky">
-        <div class="ui segment">
-          <!-- if no tags in DB display message from Express -->
-          <% if(typeof tagsMenu === 'string') { %>
-              <p><%= tagsMenu %></p>
-          <% } else { 
-              tagsMenu.forEach(function(tag){ %>
-                  <div style="background-color: <%= tag.color %>;" 
-                      class="ui label tag-item" 
-                      data-blog-count="<%= tag.blog_count %>"
-                      data-tag-id="<%= tag.tag_id %>"> 
-                      <%= tag.name %>
-                      <span class="tag-menu-count"><%= tag.blog_count %></span>
-                  </div>
-              <% })
-              } %>
-          </div>
+<!-- ##########################
+    Opening DIV for all sections under top menu bar. Closed in footer.
+    Tag menu and main column stack at < 768px 
+    ###########################-->
+<div class="ui  container stackable grid">
+  <!-- ###################
+    Column to display Tags - sticky side menu
+    #################### -->
+    <% if (!noTagsMenu) { %>
+      <!-- do not display on manage index page -->
+  <div class="four wide computer column page-content" style="padding-left: 40px;">
+    <div class="ui vertical fluid menu tags-sticky">
+      <div class="ui segment">
+        <!-- if no tags in DB display message from Express -->
+        <% if(typeof tagsMenu === 'string') { %>
+            <p><%= tagsMenu %></p>
+        <% } else { 
+            tagsMenu.forEach(function(tag){ %>
+                <a href="/blogs/tags/<%=tag.tag_id %>" style="background-color: <%= tag.color %>;" 
+                    class="ui label tag-item" 
+                    data-blog-count="<%= tag.blog_count %>"
+                    data-tag-id="<%= tag.tag_id %>"> 
+                    <%= tag.name %>
+                    <span class="tag-menu-count"><%= tag.blog_count %></span>
+                </a>
+            <% })
+            } %>
+        </div>
+    </div>
+  </div>
+
+  <!-- ######################
+      Main column page display for all pages
+      ####################### -->
+  <div class="ten wide computer column page-content">
+    <% } else { %>
+      <!-- if manage page center column on page -->
+  <div class="ten wide computer centered column page-content">
+    <% } %>
+    
+  <!-- ### logic to display flash messages ###-->
+  <% if(error && error.length > 0) { %>
+    <div class="ui container flash">
+      <div class="ui warning message" role="alert">
+        <%= error %>
       </div>
     </div>
+    <% } %>
 
+    <% if(success && success.length > 0) { %>
+    <div class="ui container flash">
+      <div class="ui success message" role="alert">
+        <%= success %>
+      </div>
+    </div>
+    <% } %>
 
-    
-  <!-- <div class="one wide column"> </div> -->
-  <div class="ten wide computer column page-content">
-
-      <!-- logic to display flash messages -->
-      <% if(error && error.length > 0) { %>
-        <div class="ui container flash">
-          <div class="ui warning message" role="alert">
-            <%= error %>
-          </div>
-        </div>
-        <% } %>
-    
-        <% if(success && success.length > 0) { %>
-        <div class="ui container flash">
-          <div class="ui success message" role="alert">
-            <%= success %>
-          </div>
-        </div>
-        <% } %>
-
+    <!-- EJS VIEWS START HERE FOR ALL PAGES -->

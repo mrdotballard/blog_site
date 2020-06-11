@@ -13,24 +13,43 @@ router.get("/", (req, res) => {
 		if (err) {
 			console.log("DB error here");
 			throw err; 
-		}
-		if(allBlogs.length > 0) {
-			pool.query("SELECT * from tag", (err, allTags) => {
-				if(err) throw err;
-			//	console.log("allTags: " + allTags);
-			// console.log(JSON.parse(allBlogs[0].tags)[0].color);
-			// multipul blogs returned so pass entire array - without [0] index
+		} 
+		if (allBlogs.length > 0) {
 			res.render("./blogs/index", { blogs: allBlogs });
-			res.end();
-			});
+			res.end(); 
 		} 
 		else res.render("./blogs/index", { blogs: "Sorry no blogs to display" });
 	}); 
 }); 
  
+// INDEX OF BLOGS WITH SPECIFIC TAG
+router.get("/tags/:tag_id", (req, res) => {
+	// pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b JOIN blog_tag bt ON bt.blog_id = b.blog_id JOIN tag t ON bt.tag_id = t.tag_id AND t.tag_id = ? GROUP BY b.blog_id ORDER BY b.created DESC", [req.params.tag_id], (err, allBlogs) => {
+	pool.query("SELECT blog_id FROM blog_tag WHERE tag_id = ?", [req.params.tag_id], (err, blogsByTag) => {
+		if (err) { 
+			throw err;
+		}
+		if(blogsByTag.length > 0) {
+			let blogIDs = [];
+			blogsByTag.forEach((blog) => {
+				blogIDs.push(blog.blog_id);
+			});
 
-// NEW ROUTE
-router.get("/new", authMiddleware.isLoggedIn, function(req, res, done){
+			pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b JOIN blog_tag bt ON bt.blog_id = b.blog_id JOIN tag t ON bt.tag_id = t.tag_id WHERE b.blog_id IN (?) GROUP BY b.blog_id ORDER BY b.created DESC", [blogIDs], (err, allBlogs) => {
+				if(err)
+					throw err; 
+				
+				res.render("./blogs/index", { blogs: allBlogs });
+				// res.end(); 
+			});
+		}  
+		else res.render("./blogs/index", { blogs: "Sorry no blogs associated to that tag" });
+
+	});
+});
+
+// NEW ROUTE 
+router.get("/new", authMiddleware.isLoggedIn, function(req, res){
 	// get tag list to send to new view
 	pool.query('SELECT * FROM tag', (err, result) => {
 		if(err) throw err;
@@ -80,7 +99,7 @@ router.post("/", authMiddleware.isLoggedIn, async (req, res, done) => {
 
 // SHOW ROUTE
 router.get("/:blog_id", function(req, res){
-	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b LEFT JOIN blog_tag bt ON bt.blog_id = b.blog_id LEFT JOIN tag t ON bt.tag_id = t.tag_id WHERE b.blog_id = ?", [req.params.blog_id],
+	pool.query("SELECT b.*, JSON_ARRAYAGG(JSON_OBJECT('id', t.tag_id, 'name', t.name, 'color', t.color)) AS tags FROM blog b LEFT JOIN blog_tag bt ON bt.blog_id = b.blog_id LEFT JOIN tag t ON bt.tag_id = t.tag_id WHERE b.blog_id = ? GROUP BY b.blog_id", [req.params.blog_id],
 	(err, result) => {
 		if(err || !result[0].blog_id){
 			console.log("DB error thrown: " + err);

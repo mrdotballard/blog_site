@@ -62,11 +62,14 @@ app.use((req, res, next) => {
   res.locals.error = req.flash('error');
   res.locals.success = req.flash('success');
   app.locals.user = req.user; 
-  next();
-});
-  
-app.use(require('./middleware/tags-menu')); //sends tag array in each request for header partial to use
+  res.locals.noTagsMenu = false; 
 
+  next();
+});  
+
+// ********************************************************
+//sends tag array in each request for header partial to use
+app.use(require('./middleware/tags-menu'));  
 
 app.use("/", indexRoutes);
 app.use("/blogs", blogRoutes);

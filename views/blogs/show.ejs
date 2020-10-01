@@ -2,39 +2,54 @@
 
 <div class="ui text container">
   <div class="blog-show-header-wrapper">
-  <div class="ui huge header"><%= blog.title %></div>
-  <% let parseTags = JSON.parse(blog.tags);
-  <!-- test there are tags to display -->
-  if(parseTags[0].id) { %>
-      <div> 
-       <% parseTags.forEach((tag) => { %>
-        <a href="/blogs/tags/<%= tag.id %>" style="background-color: <%= tag.color %>;" 
-          class="ui mini label tag-item" 
-          data-tag-id="<%= tag.id %>"> 
-          <%= tag.name %>
+    <div class="ui huge header"><%= blog.title %></div>
+    <div class="content">
+      <span><%= blog.created.toDateString() %> </span>
+    </div>
+    <% let parseTags = JSON.parse(blog.tags);
+    <!-- test there are tags to display -->
+    if(parseTags[0].id) { %>
+    <div>
+      <% parseTags.forEach((tag) => { %>
+      <a
+        href="/blogs/tags/<%= tag.id %>"
+        style="background-color: <%= tag.color %>"
+        class="ui mini label tag-item"
+        data-tag-id="<%= tag.id %>"
+      >
+        <%= tag.name %>
       </a>
-        <% }) %>
-</div>
- <% } %>
-</div>
-  <div class="ui top attached segment">
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+  <div class="ui top attached segment blog-wrap">
     <div class="item">
-        <img class="ui centered rounded image"src="<%= blog.image %>">
-        <div class="content">
-        <span><%= blog.created.toDateString() %> </span>
-      </div>
-      <div class="description"> 
+      <!-- <div class="img-wrap">
+        <img
+        class="ui centered rounded image"
+        src="<%= blog.image %>"
+      />
+    </div> -->
+
+      <div class="description">
         <!-- <p></p><%- blog.body %> </p> -->
         <%- blog.content %>
       </div>
-      <% if(user && (blog.user_id === user.user_id || 
-        user.username === "matthew")) { %>
-      <form id="delete" action="/blogs/<%= blog.blog_id %>?_method=DELETE" method="POST">
+      <% if(user && (blog.user_id === user.user_id || user.username ===
+      "matthew")) { %>
+      <form
+        id="delete"
+        action="/blogs/<%= blog.blog_id %>?_method=DELETE"
+        method="POST"
+      >
         <button class="ui red basic button">Delete</button>
       </form>
-      <a href="/blogs/<%= blog.blog_id %>/edit" class="ui orange basic button">Edit</a>
+      <a href="/blogs/<%= blog.blog_id %>/edit" class="ui orange basic button"
+        >Edit</a
+      >
       <% } %>
     </div>
-    </div>
+  </div>
 </div>
 <% include ../partials/footer %>

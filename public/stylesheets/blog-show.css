@@ -1,0 +1,29 @@
+.blog-wrap .description {
+  padding-bottom: 2em;
+  font-family: 'Adamina', serif;
+  font-size: 1.2rem;
+}
+
+.description .image {
+  width: 100%;
+  max-height: 20em;
+  overflow: hidden;
+}
+
+.code {
+
+}
+
+[class*="language"] {
+  /* background-color: black;
+  padding: 5px;
+  color: white; */
+  border-radius: 3px;
+
+}
+/* .terminal {
+  background-color: black;
+  padding: 5px;
+  color: white;
+  border-radius: 3px;
+} */

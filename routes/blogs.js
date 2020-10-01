@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/auth');
 require('dotenv').config();
 const pool = require('../lib/database'); //require dotenv config each time created
 
+const { embedImages } = require('../lib/helper');
 
 // INDEX ROUTE
 router.get("/", (req, res) => {
@@ -106,6 +107,9 @@ router.get("/:blog_id", function(req, res){
 			req.flash('error', 'No such blog');
 			res.redirect("/blogs"); 
 		} else{
+      console.log(result[0].content);
+      result[0].content = embedImages(result[0].content);
+      console.log(result[0].content);
 			res.render("./blogs/show", { blog: result[0] }); 
 		}
 	});

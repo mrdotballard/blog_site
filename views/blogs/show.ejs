@@ -34,6 +34,7 @@
 
       <div class="description">
         <!-- <p></p><%- blog.body %> </p> -->
+        <% console.log(blog.content); %>
         <%- blog.content %>
       </div>
       <% if(user && (blog.user_id === user.user_id || user.username ===

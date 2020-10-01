@@ -107,7 +107,6 @@ router.get("/:blog_id", function(req, res){
 			req.flash('error', 'No such blog');
 			res.redirect("/blogs"); 
 		} else{
-      console.log(result[0].content);
       result[0].content = embedImages(result[0].content);
       console.log(result[0].content);
 			res.render("./blogs/show", { blog: result[0] }); 
